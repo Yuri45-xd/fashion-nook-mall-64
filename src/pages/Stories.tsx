@@ -5,13 +5,13 @@ import { CalendarDays, User, Clock } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 
 const Stories = () => {
-  // Sample stories data
+  // Sample stories data with reliable images
   const stories = [
     {
       id: 1,
       title: "From Startup to Industry Leader: The Fashion Zone Story",
       excerpt: "How a small team with big dreams transformed online fashion retail.",
-      image: "https://images.unsplash.com/photo-1521737852567-6949f3f9f2b5?auto=format&fit=crop&w=800&q=80",
+      image: "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=800&q=80",
       author: "Alex Johnson",
       date: "June 12, 2024",
       readTime: "6 min read"
@@ -20,7 +20,7 @@ const Stories = () => {
       id: 2,
       title: "Sustainability in Fashion: Our Commitment",
       excerpt: "Discover how Fashion Zone is working towards a more sustainable fashion future.",
-      image: "https://images.unsplash.com/photo-1595341888016-a392ef81b7de?auto=format&fit=crop&w=800&q=80",
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80",
       author: "Maya Patel",
       date: "May 28, 2024",
       readTime: "4 min read"
@@ -29,7 +29,7 @@ const Stories = () => {
       id: 3,
       title: "Behind the Scenes: Our Design Process",
       excerpt: "A look into how our design team creates the latest collections.",
-      image: "https://images.unsplash.com/photo-1508385082359-f38ae991e8f2?auto=format&fit=crop&w=800&q=80",
+      image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=800&q=80",
       author: "Sam Carter",
       date: "April 15, 2024",
       readTime: "8 min read"
@@ -38,7 +38,7 @@ const Stories = () => {
       id: 4,
       title: "Customer Stories: Fashion That Changed Lives",
       excerpt: "Real stories from customers about how finding the right style boosted their confidence.",
-      image: "https://images.unsplash.com/photo-1529245856630-f4853233d2ea?auto=format&fit=crop&w=800&q=80",
+      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=800&q=80",
       author: "Jessica Kim",
       date: "March 22, 2024",
       readTime: "5 min read"

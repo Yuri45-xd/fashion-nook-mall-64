@@ -3,23 +3,23 @@ import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
-// Use reliable banner images
+// Updated with more reliable banner images
 const banners = [
   {
     id: 1,
-    image: "https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=2000&q=80",
+    image: "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=2000&q=80",
     alt: "Fashion Sale",
     url: "/categories/outerwear"
   },
   {
     id: 2,
-    image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=2000&q=80",
+    image: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=2000&q=80",
     alt: "Summer Collection",
     url: "/categories/shirts"
   },
   {
     id: 3,
-    image: "https://images.unsplash.com/photo-1483058712412-4245e9b90334?auto=format&fit=crop&w=2000&q=80",
+    image: "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=2000&q=80",
     alt: "Tech Accessories",
     url: "/categories/accessories"
   },
