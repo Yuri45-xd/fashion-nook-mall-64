@@ -6,7 +6,6 @@ import BannerCarousel from "../components/BannerCarousel";
 import DealsSection from "../components/DealsSection";
 import ProductSection from "../components/ProductSection";
 import Footer from "../components/Footer";
-import ChatBot from "../components/ChatBot";
 import { useProductStore } from "../store/ProductStore";
 
 const Index = () => {
@@ -119,7 +118,6 @@ const Index = () => {
         </div>
       </main>
       <Footer />
-      <ChatBot />
     </div>
   );
 };
