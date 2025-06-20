@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { products } from "../data/products";
@@ -7,6 +6,8 @@ import Footer from "../components/Footer";
 import ProductCard from "../components/ProductCard";
 import { Heart, Star, ShoppingCart, Truck, Package, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
+import { useCartStore } from "../store/CartStore";
+import { useAuthStore } from "../store/AuthStore";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -14,6 +15,7 @@ const ProductDetail = () => {
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("description");
+  const { addItem } = useCartStore();
   
   const similarProducts = products.filter(p => 
     p.category === product.category && p.id !== product.id
@@ -27,6 +29,12 @@ const ProductDetail = () => {
   }, [id]);
 
   const handleAddToCart = () => {
+    if (!selectedSize) {
+      toast.error("Please select a size");
+      return;
+    }
+    
+    addItem(product, quantity, selectedSize);
     toast.success("Product added to cart!");
   };
 

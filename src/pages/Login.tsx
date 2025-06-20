@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { User, Phone, MapPin, X, Store } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuthStore } from "../store/AuthStore";
 
 // Form validation schemas
 const phoneSchema = z.object({
@@ -30,6 +30,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [userPhone, setUserPhone] = useState("");
+  const { login } = useAuthStore();
 
   // Phone number form
   const phoneForm = useForm<z.infer<typeof phoneSchema>>({
@@ -86,11 +87,13 @@ const Login = () => {
       const userData = existingUsers[userPhone];
       
       if (userData) {
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("currentUser", JSON.stringify({
-          phone: userPhone,
-          username: userData.username
-        }));
+        // Update auth store
+        login({
+          id: userPhone,
+          username: userData.username,
+          email: userData.email || `${userPhone}@example.com`,
+          phone: userPhone
+        });
         
         toast({
           title: "Login Successful",
@@ -108,15 +111,19 @@ const Login = () => {
     const existingUsers = JSON.parse(localStorage.getItem("users") || "{}");
     existingUsers[userPhone] = {
       username: values.username,
+      email: `${userPhone}@example.com`,
       registeredAt: new Date().toISOString()
     };
     
     localStorage.setItem("users", JSON.stringify(existingUsers));
-    localStorage.setItem("isLoggedIn", "true");
-    localStorage.setItem("currentUser", JSON.stringify({
-      phone: userPhone,
-      username: values.username
-    }));
+    
+    // Update auth store
+    login({
+      id: userPhone,
+      username: values.username,
+      email: `${userPhone}@example.com`,
+      phone: userPhone
+    });
     
     toast({
       title: "Registration Successful",
