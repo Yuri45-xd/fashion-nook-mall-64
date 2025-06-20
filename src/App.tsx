@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import CategoryPage from "./pages/CategoryPage";
 import Login from "./pages/Login";
 import LocationEnabler from "./components/LocationEnabler";
+import Admin from "./pages/Admin";
 import CustomerCare from "./pages/CustomerCare";
 import About from "./pages/About";
 import Orders from "./pages/Orders";
@@ -50,6 +50,7 @@ const App = () => (
           <Route path="/categories/:categoryName" element={<CategoryPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Login />} />
+          <Route path="/admin" element={<Admin />} />
           <Route path="/customer-care" element={<CustomerCare />} />
           <Route path="/about" element={<About />} />
           <Route path="/orders" element={<Orders />} />
