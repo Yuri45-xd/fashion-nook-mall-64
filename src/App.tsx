@@ -34,7 +34,6 @@ import Twitter from "./pages/Twitter";
 import YouTube from "./pages/YouTube";
 import Instagram from "./pages/Instagram";
 import Returns from "./pages/Returns";
-import Checkout from "./pages/Checkout";
 
 const queryClient = new QueryClient();
 
@@ -51,15 +50,13 @@ const App = () => (
           <Route path="/categories/:categoryName" element={<CategoryPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Login />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/admin/*" element={<AdminPanel />} />
           <Route path="/customer-care" element={<CustomerCare />} />
           <Route path="/about" element={<About />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/notification-preferences" element={<NotificationPreferences />} />
           <Route path="/contact" element={<Contact />} />
-          {/* New routes for pages that were missing */}
           <Route path="/careers" element={<Careers />} />
           <Route path="/stories" element={<Stories />} />
           <Route path="/wholesale" element={<Wholesale />} />
