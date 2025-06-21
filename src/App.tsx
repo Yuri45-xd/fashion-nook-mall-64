@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -36,6 +37,7 @@ import Twitter from "./pages/Twitter";
 import YouTube from "./pages/YouTube";
 import Instagram from "./pages/Instagram";
 import Returns from "./pages/Returns";
+import Deals from "./pages/Deals";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +53,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/categories/:categoryName" element={<CategoryPage />} />
+            <Route path="/deals" element={<Deals />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Login />} />
             <Route path="/admin" element={<Admin />} />

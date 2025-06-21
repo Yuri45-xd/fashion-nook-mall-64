@@ -11,7 +11,9 @@ import {
   List,
   TrendingUp,
   AlertTriangle,
-  DollarSign
+  DollarSign,
+  Home,
+  FileText
 } from "lucide-react";
 
 interface AdminSidebarProps {
@@ -21,7 +23,7 @@ interface AdminSidebarProps {
 
 const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
+    { id: 'dashboard', label: 'Dashboard', icon: Home },
     { id: 'products', label: 'Products', icon: Package },
     { id: 'add-product', label: 'Add Product', icon: Plus },
     { id: 'inventory', label: 'Inventory', icon: List },
@@ -35,7 +37,10 @@ const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
     <Card className="h-full">
       <CardContent className="p-4">
         <div className="space-y-2">
-          <h2 className="text-lg font-semibold mb-4">Admin Panel</h2>
+          <div className="mb-4">
+            <h2 className="text-lg font-semibold text-blue-600">Admin Panel</h2>
+            <p className="text-xs text-gray-500">Manage your store</p>
+          </div>
           {menuItems.map((item) => {
             const Icon = item.icon;
             return (
