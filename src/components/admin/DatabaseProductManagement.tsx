@@ -1,16 +1,14 @@
 
 import { useState, useEffect } from "react";
 import { useSupabaseProductStore, DatabaseProduct } from "../../store/SupabaseProductStore";
-import { useAuth } from "../../hooks/useAuth";
 import DatabaseProductEditor from "./DatabaseProductEditor";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Plus, Edit3, Trash2, LogOut, Loader2 } from "lucide-react";
+import { Plus, Edit3, Trash2, Loader2 } from "lucide-react";
 
 const DatabaseProductManagement = () => {
   const { products, loading, fetchProducts, deleteProduct } = useSupabaseProductStore();
-  const { user, signOut } = useAuth();
   const [editingProduct, setEditingProduct] = useState<DatabaseProduct | null>(null);
   const [showEditor, setShowEditor] = useState(false);
 
@@ -45,11 +43,6 @@ const DatabaseProductManagement = () => {
     setEditingProduct(null);
   };
 
-  const handleSignOut = async () => {
-    await signOut();
-    toast.success("Signed out successfully");
-  };
-
   if (showEditor) {
     return (
       <div className="p-4">
@@ -71,13 +64,6 @@ const DatabaseProductManagement = () => {
               Product Management (Database)
             </div>
             <div className="flex gap-2">
-              <span className="text-sm text-gray-600">
-                Welcome, {user?.email}
-              </span>
-              <Button variant="outline" onClick={handleSignOut} size="sm">
-                <LogOut className="w-4 h-4 mr-2" />
-                Sign Out
-              </Button>
               <Button onClick={handleAdd} size="sm">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Product
