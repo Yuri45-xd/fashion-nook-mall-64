@@ -6,34 +6,58 @@ import BannerCarousel from "../components/BannerCarousel";
 import DealsSection from "../components/DealsSection";
 import ProductSection from "../components/ProductSection";
 import Footer from "../components/Footer";
-import { useProductStore } from "../store/ProductStore";
+import { useSupabaseProductStore, DatabaseProduct } from "../store/SupabaseProductStore";
+
+// Convert DatabaseProduct to Product format for existing components
+const convertDatabaseProduct = (dbProduct: DatabaseProduct) => ({
+  id: dbProduct.id,
+  title: dbProduct.title,
+  price: dbProduct.price,
+  originalPrice: dbProduct.original_price || dbProduct.price,
+  discountPercentage: dbProduct.discount_percentage,
+  image: dbProduct.image || '/placeholder.svg',
+  rating: dbProduct.rating,
+  ratingCount: dbProduct.rating_count,
+  category: dbProduct.category,
+  description: dbProduct.description || '',
+  stock: dbProduct.stock || 0,
+  sku: dbProduct.sku || '',
+});
 
 const Index = () => {
-  // Use product store instead of direct imports
-  const { products, getProductsByCategory } = useProductStore();
+  const { products, fetchProducts, getProductsByCategory } = useSupabaseProductStore();
   
-  const [tshirts, setTshirts] = useState<typeof products>([]);
-  const [hoodies, setHoodies] = useState<typeof products>([]);
-  const [jeans, setJeans] = useState<typeof products>([]);
-  const [dresses, setDresses] = useState<typeof products>([]);
-  const [kids, setKids] = useState<typeof products>([]);
-  const [shirts, setShirts] = useState<typeof products>([]);
-  const [outerwear, setOuterwear] = useState<typeof products>([]);
-  const [activewear, setActivewear] = useState<typeof products>([]);
-  const [accessories, setAccessories] = useState<typeof products>([]);
+  const [tshirts, setTshirts] = useState<ReturnType<typeof convertDatabaseProduct>[]>([]);
+  const [hoodies, setHoodies] = useState<ReturnType<typeof convertDatabaseProduct>[]>([]);
+  const [jeans, setJeans] = useState<ReturnType<typeof convertDatabaseProduct>[]>([]);
+  const [dresses, setDresses] = useState<ReturnType<typeof convertDatabaseProduct>[]>([]);
+  const [kids, setKids] = useState<ReturnType<typeof convertDatabaseProduct>[]>([]);
+  const [shirts, setShirts] = useState<ReturnType<typeof convertDatabaseProduct>[]>([]);
+  const [outerwear, setOuterwear] = useState<ReturnType<typeof convertDatabaseProduct>[]>([]);
+  const [activewear, setActivewear] = useState<ReturnType<typeof convertDatabaseProduct>[]>([]);
+  const [accessories, setAccessories] = useState<ReturnType<typeof convertDatabaseProduct>[]>([]);
 
   useEffect(() => {
-    // Populate products by categories using the store
-    setTshirts(getProductsByCategory("tshirts"));
-    setHoodies(getProductsByCategory("hoodies"));
-    setJeans(getProductsByCategory("jeans"));
-    setDresses(getProductsByCategory("dresses"));
-    setKids(getProductsByCategory("kids"));
-    setShirts(getProductsByCategory("shirts"));
-    setOuterwear(getProductsByCategory("outerwear"));
-    setActivewear(getProductsByCategory("activewear"));
-    setAccessories(getProductsByCategory("accessories"));
+    fetchProducts();
+  }, [fetchProducts]);
+
+  useEffect(() => {
+    // Convert database products to the format expected by existing components
+    const convertedProducts = products.map(convertDatabaseProduct);
+    
+    // Populate products by categories
+    setTshirts(getProductsByCategory("tshirts").map(convertDatabaseProduct));
+    setHoodies(getProductsByCategory("hoodies").map(convertDatabaseProduct));
+    setJeans(getProductsByCategory("jeans").map(convertDatabaseProduct));
+    setDresses(getProductsByCategory("dresses").map(convertDatabaseProduct));
+    setKids(getProductsByCategory("kids").map(convertDatabaseProduct));
+    setShirts(getProductsByCategory("shirts").map(convertDatabaseProduct));
+    setOuterwear(getProductsByCategory("outerwear").map(convertDatabaseProduct));
+    setActivewear(getProductsByCategory("activewear").map(convertDatabaseProduct));
+    setAccessories(getProductsByCategory("accessories").map(convertDatabaseProduct));
   }, [products, getProductsByCategory]);
+
+  const allConvertedProducts = products.map(convertDatabaseProduct);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -42,7 +66,7 @@ const Index = () => {
       <main className="flex-1 container mx-auto px-4 py-4">
         <BannerCarousel />
         <div className="my-6">
-          <DealsSection products={products} />
+          <DealsSection products={allConvertedProducts} />
           
           {tshirts.length > 0 && (
             <ProductSection 

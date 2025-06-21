@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./hooks/useAuth";
 import Index from "./pages/Index";
 import ProductDetail from "./pages/ProductDetail";
 import NotFound from "./pages/NotFound";
@@ -10,6 +11,7 @@ import CategoryPage from "./pages/CategoryPage";
 import Login from "./pages/Login";
 import LocationEnabler from "./components/LocationEnabler";
 import Admin from "./pages/Admin";
+import AdminAuth from "./pages/AdminAuth";
 import CustomerCare from "./pages/CustomerCare";
 import About from "./pages/About";
 import Orders from "./pages/Orders";
@@ -39,46 +41,49 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <LocationEnabler />
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/product/:id" element={<ProductDetail />} />
-          <Route path="/categories/:categoryName" element={<CategoryPage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Login />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/customer-care" element={<CustomerCare />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/wishlist" element={<Wishlist />} />
-          <Route path="/notification-preferences" element={<NotificationPreferences />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/careers" element={<Careers />} />
-          <Route path="/stories" element={<Stories />} />
-          <Route path="/wholesale" element={<Wholesale />} />
-          <Route path="/payments" element={<Payments />} />
-          <Route path="/shipping" element={<Shipping />} />
-          <Route path="/cancellation" element={<Cancellation />} />
-          <Route path="/faq" element={<FAQ />} />
-          <Route path="/report" element={<Report />} />
-          <Route path="/return-policy" element={<ReturnPolicy />} />
-          <Route path="/returns" element={<Returns />} />
-          <Route path="/terms" element={<Terms />} />
-          <Route path="/security" element={<Security />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/sitemap" element={<Sitemap />} />
-          <Route path="/facebook" element={<Facebook />} />
-          <Route path="/twitter" element={<Twitter />} />
-          <Route path="/youtube" element={<YouTube />} />
-          <Route path="/instagram" element={<Instagram />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <LocationEnabler />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/product/:id" element={<ProductDetail />} />
+            <Route path="/categories/:categoryName" element={<CategoryPage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Login />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/auth" element={<AdminAuth />} />
+            <Route path="/customer-care" element={<CustomerCare />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/wishlist" element={<Wishlist />} />
+            <Route path="/notification-preferences" element={<NotificationPreferences />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/careers" element={<Careers />} />
+            <Route path="/stories" element={<Stories />} />
+            <Route path="/wholesale" element={<Wholesale />} />
+            <Route path="/payments" element={<Payments />} />
+            <Route path="/shipping" element={<Shipping />} />
+            <Route path="/cancellation" element={<Cancellation />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/report" element={<Report />} />
+            <Route path="/return-policy" element={<ReturnPolicy />} />
+            <Route path="/returns" element={<Returns />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/security" element={<Security />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/sitemap" element={<Sitemap />} />
+            <Route path="/facebook" element={<Facebook />} />
+            <Route path="/twitter" element={<Twitter />} />
+            <Route path="/youtube" element={<YouTube />} />
+            <Route path="/instagram" element={<Instagram />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

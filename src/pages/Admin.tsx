@@ -1,17 +1,20 @@
 
-import ProductManagement from "../components/admin/ProductManagement";
+import DatabaseProductManagement from "../components/admin/DatabaseProductManagement";
+import ProtectedRoute from "../components/admin/ProtectedRoute";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 
 const Admin = () => {
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1 bg-gray-50">
-        <ProductManagement />
-      </main>
-      <Footer />
-    </div>
+    <ProtectedRoute>
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 bg-gray-50">
+          <DatabaseProductManagement />
+        </main>
+        <Footer />
+      </div>
+    </ProtectedRoute>
   );
 };
 

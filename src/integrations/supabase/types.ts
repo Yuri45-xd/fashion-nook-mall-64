@@ -9,7 +9,81 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      admin_users: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          name: string | null
+          password_hash: string
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          name?: string | null
+          password_hash: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          name?: string | null
+          password_hash?: string
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string | null
+          discount_percentage: number | null
+          id: number
+          image: string | null
+          original_price: number | null
+          price: number
+          rating: number | null
+          rating_count: number | null
+          sku: string | null
+          stock: number | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description?: string | null
+          discount_percentage?: number | null
+          id?: number
+          image?: string | null
+          original_price?: number | null
+          price: number
+          rating?: number | null
+          rating_count?: number | null
+          sku?: string | null
+          stock?: number | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          discount_percentage?: number | null
+          id?: number
+          image?: string | null
+          original_price?: number | null
+          price?: number
+          rating?: number | null
+          rating_count?: number | null
+          sku?: string | null
+          stock?: number | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

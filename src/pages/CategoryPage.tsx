@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Header from "../components/Header";
@@ -5,18 +6,38 @@ import Footer from "../components/Footer";
 import CategoryNav from "../components/CategoryNav";
 import ProductCard from "../components/ProductCard";
 import { ChevronDown, Filter } from "lucide-react";
-import { useProductStore } from "../store/ProductStore";
+import { useSupabaseProductStore } from "../store/SupabaseProductStore";
 
 const CategoryPage = () => {
   const { categoryName } = useParams<{ categoryName: string }>();
   const [products, setProducts] = useState<any[]>([]);
   const [sortBy, setSortBy] = useState("popularity");
   const [showFilters, setShowFilters] = useState(false);
-  const { getProductsByCategory } = useProductStore();
+  const { getProductsByCategory, fetchProducts } = useSupabaseProductStore();
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   useEffect(() => {
     if (categoryName) {
-      setProducts(getProductsByCategory(categoryName));
+      const dbProducts = getProductsByCategory(categoryName);
+      // Convert to expected format
+      const convertedProducts = dbProducts.map(dbProduct => ({
+        id: dbProduct.id,
+        title: dbProduct.title,
+        price: dbProduct.price,
+        originalPrice: dbProduct.original_price || dbProduct.price,
+        discountPercentage: dbProduct.discount_percentage,
+        image: dbProduct.image || '/placeholder.svg',
+        rating: dbProduct.rating,
+        ratingCount: dbProduct.rating_count,
+        category: dbProduct.category,
+        description: dbProduct.description || '',
+        stock: dbProduct.stock || 0,
+        sku: dbProduct.sku || '',
+      }));
+      setProducts(convertedProducts);
     }
   }, [categoryName, getProductsByCategory]);
 
