@@ -100,8 +100,7 @@ export const useSupabaseProductStore = create<SupabaseProductState>((set, get) =
           sku: product.sku
         })
         .eq('id', product.id)
-        .select()
-        .single();
+        .select();
 
       if (error) {
         console.error('Error updating product:', error);
@@ -109,8 +108,13 @@ export const useSupabaseProductStore = create<SupabaseProductState>((set, get) =
         return;
       }
 
+      if (!data || data.length === 0) {
+        toast.error('Product not found or no changes made');
+        return;
+      }
+
       set((state) => ({
-        products: state.products.map(p => p.id === product.id ? data : p)
+        products: state.products.map(p => p.id === product.id ? data[0] : p)
       }));
 
       toast.success('Product updated successfully!');
