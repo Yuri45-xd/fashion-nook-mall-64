@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useSupabaseProductStore, DatabaseProduct } from "../../store/SupabaseProductStore";
+import { supabase } from "@/integrations/supabase/client";
 import DatabaseProductEditor from "./DatabaseProductEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
