@@ -17,16 +17,61 @@ const EmailVerification = () => {
   useEffect(() => {
     const handleEmailVerification = async () => {
       console.log('Email verification started');
-      console.log('URL params:', window.location.href);
+      console.log('Current URL:', window.location.href);
       console.log('Search params:', Object.fromEntries(searchParams.entries()));
       
+      // Get all possible verification parameters
       const token = searchParams.get('token');
       const type = searchParams.get('type');
       const tokenHash = searchParams.get('token_hash');
+      const accessToken = searchParams.get('access_token');
+      const refreshToken = searchParams.get('refresh_token');
       
-      console.log('Verification params:', { token, type, tokenHash });
+      console.log('Verification params:', { token, type, tokenHash, accessToken, refreshToken });
       
-      // Check for token_hash first (new Supabase format)
+      // If we have access_token and refresh_token, set the session directly
+      if (accessToken && refreshToken) {
+        try {
+          console.log('Setting session with tokens');
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+
+          console.log('Session set result:', { data, error });
+
+          if (error) {
+            console.error('Session error:', error);
+            setVerificationStatus('error');
+            setMessage('Failed to verify email. Please try again.');
+            return;
+          }
+
+          if (data.user) {
+            console.log('Email verification successful:', data.user.email);
+            setVerificationStatus('success');
+            setMessage('Email verified successfully! Welcome to Fashion Zone.');
+            
+            toast({
+              title: "Email Verified",
+              description: "Your account has been verified successfully!",
+            });
+
+            // Redirect to home page after 2 seconds
+            setTimeout(() => {
+              navigate('/');
+            }, 2000);
+          }
+          return;
+        } catch (error: any) {
+          console.error('Session set error:', error);
+          setVerificationStatus('error');
+          setMessage('Failed to verify email. Please try again.');
+          return;
+        }
+      }
+
+      // Fallback to OTP verification if no access tokens
       const verificationToken = tokenHash || token;
       
       if (!verificationToken || !type) {
@@ -37,17 +82,17 @@ const EmailVerification = () => {
       }
 
       try {
-        console.log('Attempting verification with:', { token: verificationToken, type });
+        console.log('Attempting OTP verification with:', { token: verificationToken, type });
         
         const { data, error } = await supabase.auth.verifyOtp({
           token_hash: verificationToken,
           type: type as any
         });
 
-        console.log('Verification response:', { data, error });
+        console.log('OTP verification response:', { data, error });
 
         if (error) {
-          console.error('Verification error:', error);
+          console.error('OTP verification error:', error);
           setVerificationStatus('error');
           
           if (error.message.includes('expired')) {
@@ -58,7 +103,7 @@ const EmailVerification = () => {
             setMessage('Email verification failed. Please try again or contact support.');
           }
         } else if (data.user) {
-          console.log('Verification successful for user:', data.user.email);
+          console.log('OTP verification successful for user:', data.user.email);
           setVerificationStatus('success');
           setMessage('Email verified successfully! Welcome to Fashion Zone.');
           
@@ -67,10 +112,10 @@ const EmailVerification = () => {
             description: "Your account has been verified successfully!",
           });
 
-          // Redirect to home page after 3 seconds
+          // Redirect to home page after 2 seconds
           setTimeout(() => {
             navigate('/');
-          }, 3000);
+          }, 2000);
         }
       } catch (error: any) {
         console.error('Verification catch error:', error);

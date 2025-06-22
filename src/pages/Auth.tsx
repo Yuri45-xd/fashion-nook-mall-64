@@ -119,11 +119,15 @@ const Auth = () => {
     console.log('Signup attempt with:', values.email, values.username);
     
     try {
+      // Use the current window location for the redirect URL
+      const redirectUrl = `${window.location.origin}/verify`;
+      console.log('Using redirect URL:', redirectUrl);
+      
       const { data, error } = await supabase.auth.signUp({
         email: values.email,
         password: values.password,
         options: {
-          emailRedirectTo: `${window.location.origin}/verify`,
+          emailRedirectTo: redirectUrl,
           data: {
             username: values.username,
           }
