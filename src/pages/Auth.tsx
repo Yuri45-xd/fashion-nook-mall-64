@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { User, Mail, Lock, X, Store, Eye, EyeOff } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 // Form validation schemas
@@ -58,17 +58,23 @@ const Auth = () => {
   // Handle login
   const onLoginSubmit = async (values: z.infer<typeof loginSchema>) => {
     setIsLoading(true);
+    console.log('Login attempt with:', values.email);
+    
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
       });
 
+      console.log('Login response:', { data, error });
+
       if (error) {
+        console.error('Login error:', error);
+        
         if (error.message.includes('Invalid login credentials')) {
           toast({
             title: "Login Failed",
-            description: "Invalid email or password. Please try again.",
+            description: "Invalid email or password. Please check your credentials and try again.",
             variant: "destructive",
           });
         } else if (error.message.includes('Email not confirmed')) {
@@ -88,13 +94,15 @@ const Auth = () => {
       }
 
       if (data.user) {
+        console.log('Login successful for user:', data.user.email);
         toast({
           title: "Login Successful",
-          description: "Welcome back!",
+          description: "Welcome back to Fashion Zone!",
         });
         navigate("/");
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Login catch error:', error);
       toast({
         title: "Error",
         description: "An unexpected error occurred. Please try again.",
@@ -108,6 +116,8 @@ const Auth = () => {
   // Handle signup
   const onSignupSubmit = async (values: z.infer<typeof signupSchema>) => {
     setIsLoading(true);
+    console.log('Signup attempt with:', values.email, values.username);
+    
     try {
       const { data, error } = await supabase.auth.signUp({
         email: values.email,
@@ -120,7 +130,11 @@ const Auth = () => {
         }
       });
 
+      console.log('Signup response:', { data, error });
+
       if (error) {
+        console.error('Signup error:', error);
+        
         if (error.message.includes('User already registered')) {
           toast({
             title: "Email Already Registered",
@@ -139,13 +153,22 @@ const Auth = () => {
       }
 
       if (data.user) {
+        console.log('Signup successful for user:', data.user.email);
         toast({
           title: "Account Created Successfully",
           description: "Please check your email to verify your account before logging in.",
         });
-        // Don't navigate immediately, let them verify email first
+        
+        // Clear the form
+        signupForm.reset();
+        
+        // Switch to login mode after successful signup
+        setTimeout(() => {
+          setIsLogin(true);
+        }, 2000);
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Signup catch error:', error);
       toast({
         title: "Error",
         description: "An unexpected error occurred. Please try again.",
@@ -157,28 +180,31 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-flipkart-bg-light flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <div className="flex-1 flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg shadow-md w-full max-w-md overflow-hidden relative">
-          <div className="flex justify-between items-center absolute top-4 right-4 left-4 z-10">
-            <Link to="/" className="flex items-center gap-1 text-flipkart-blue hover:underline">
-              <Store className="h-4 w-4" />
-              <span className="text-sm">Back to Store</span>
-            </Link>
+        <div className="bg-white rounded-lg shadow-lg w-full max-w-md overflow-hidden">
+          {/* Header */}
+          <div className="bg-flipkart-blue p-6 text-white relative">
             <Link 
               to="/" 
-              className="p-1.5 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors"
+              className="absolute top-4 right-4 p-1.5 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
             >
-              <X className="h-5 w-5 text-gray-700" />
+              <X className="h-5 w-5" />
             </Link>
-          </div>
-          
-          <div className="bg-flipkart-blue p-6 text-white pt-16">
-            <h1 className="text-2xl font-bold">
-              {isLogin ? "Login" : "Create Account"}
+            
+            <div className="flex items-center gap-2 mb-4">
+              <Store className="h-6 w-6" />
+              <span className="text-lg font-semibold">Fashion Zone</span>
+            </div>
+            
+            <h1 className="text-2xl font-bold mb-2">
+              {isLogin ? "Login" : "Sign up"}
             </h1>
-            <p className="mt-1 text-sm opacity-80">
-              {isLogin ? "Enter your credentials to continue" : "Join Fashion Zone today"}
+            <p className="text-sm opacity-90">
+              {isLogin 
+                ? "Get access to your Orders, Wishlist and Recommendations" 
+                : "Create your Fashion Zone account"
+              }
             </p>
           </div>
           
@@ -191,15 +217,16 @@ const Auth = () => {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email Address</FormLabel>
+                        <FormLabel className="text-gray-700 font-medium">Email Address</FormLabel>
                         <div className="relative">
                           <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                           <FormControl>
                             <Input 
                               placeholder="Enter your email" 
-                              className="pl-10" 
+                              className="pl-10 h-12 border-gray-300 focus:border-flipkart-blue focus:ring-flipkart-blue" 
                               {...field} 
                               type="email"
+                              autoComplete="email"
                             />
                           </FormControl>
                         </div>
@@ -213,15 +240,16 @@ const Auth = () => {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Password</FormLabel>
+                        <FormLabel className="text-gray-700 font-medium">Password</FormLabel>
                         <div className="relative">
                           <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                           <FormControl>
                             <Input 
                               placeholder="Enter your password" 
-                              className="pl-10 pr-10" 
+                              className="pl-10 pr-10 h-12 border-gray-300 focus:border-flipkart-blue focus:ring-flipkart-blue" 
                               {...field} 
                               type={showPassword ? "text" : "password"}
+                              autoComplete="current-password"
                             />
                           </FormControl>
                           <button
@@ -237,8 +265,12 @@ const Auth = () => {
                     )}
                   />
                   
-                  <Button type="submit" className="w-full bg-flipkart-orange hover:bg-flipkart-orange/90" disabled={isLoading}>
-                    {isLoading ? "Signing in..." : "Sign In"}
+                  <Button 
+                    type="submit" 
+                    className="w-full h-12 bg-flipkart-orange hover:bg-flipkart-orange/90 font-medium text-base" 
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Logging in..." : "Login"}
                   </Button>
                 </form>
               </Form>
@@ -250,15 +282,16 @@ const Auth = () => {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email Address</FormLabel>
+                        <FormLabel className="text-gray-700 font-medium">Email Address</FormLabel>
                         <div className="relative">
                           <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                           <FormControl>
                             <Input 
                               placeholder="Enter your email" 
-                              className="pl-10" 
+                              className="pl-10 h-12 border-gray-300 focus:border-flipkart-blue focus:ring-flipkart-blue" 
                               {...field} 
                               type="email"
+                              autoComplete="email"
                             />
                           </FormControl>
                         </div>
@@ -272,14 +305,15 @@ const Auth = () => {
                     name="username"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Username</FormLabel>
+                        <FormLabel className="text-gray-700 font-medium">Username</FormLabel>
                         <div className="relative">
                           <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                           <FormControl>
                             <Input 
                               placeholder="Choose a username" 
-                              className="pl-10" 
+                              className="pl-10 h-12 border-gray-300 focus:border-flipkart-blue focus:ring-flipkart-blue" 
                               {...field}
+                              autoComplete="username"
                             />
                           </FormControl>
                         </div>
@@ -293,15 +327,16 @@ const Auth = () => {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Password</FormLabel>
+                        <FormLabel className="text-gray-700 font-medium">Password</FormLabel>
                         <div className="relative">
                           <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                           <FormControl>
                             <Input 
                               placeholder="Create a password" 
-                              className="pl-10 pr-10" 
+                              className="pl-10 pr-10 h-12 border-gray-300 focus:border-flipkart-blue focus:ring-flipkart-blue" 
                               {...field} 
                               type={showPassword ? "text" : "password"}
+                              autoComplete="new-password"
                             />
                           </FormControl>
                           <button
@@ -322,15 +357,16 @@ const Auth = () => {
                     name="confirmPassword"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Confirm Password</FormLabel>
+                        <FormLabel className="text-gray-700 font-medium">Confirm Password</FormLabel>
                         <div className="relative">
                           <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                           <FormControl>
                             <Input 
                               placeholder="Confirm your password" 
-                              className="pl-10" 
+                              className="pl-10 h-12 border-gray-300 focus:border-flipkart-blue focus:ring-flipkart-blue" 
                               {...field} 
                               type="password"
+                              autoComplete="new-password"
                             />
                           </FormControl>
                         </div>
@@ -339,7 +375,11 @@ const Auth = () => {
                     )}
                   />
                   
-                  <Button type="submit" className="w-full bg-flipkart-orange hover:bg-flipkart-orange/90" disabled={isLoading}>
+                  <Button 
+                    type="submit" 
+                    className="w-full h-12 bg-flipkart-orange hover:bg-flipkart-orange/90 font-medium text-base" 
+                    disabled={isLoading}
+                  >
                     {isLoading ? "Creating Account..." : "Create Account"}
                   </Button>
                 </form>
@@ -347,17 +387,38 @@ const Auth = () => {
             )}
             
             <div className="mt-6 text-center">
-              <span className="text-gray-600">
-                {isLogin ? "Don't have an account? " : "Already have an account? "}
-              </span>
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">
+                    {isLogin ? "New to Fashion Zone?" : "Existing Customer?"}
+                  </span>
+                </div>
+              </div>
+              
               <button 
                 type="button" 
-                className="text-flipkart-blue font-medium hover:underline"
-                onClick={() => setIsLogin(!isLogin)}
+                className="mt-4 w-full h-12 border border-gray-300 text-flipkart-blue font-medium hover:bg-gray-50 transition-colors rounded-md"
+                onClick={() => {
+                  setIsLogin(!isLogin);
+                  // Reset forms when switching
+                  loginForm.reset();
+                  signupForm.reset();
+                }}
               >
-                {isLogin ? "Sign Up" : "Sign In"}
+                {isLogin ? "Create your account" : "Login to your account"}
               </button>
             </div>
+            
+            {isLogin && (
+              <div className="mt-4 text-center">
+                <Link to="/" className="text-sm text-flipkart-blue hover:underline">
+                  Continue as Guest
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>
