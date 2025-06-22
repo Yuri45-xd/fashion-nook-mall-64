@@ -71,6 +71,12 @@ const Auth = () => {
             description: "Invalid email or password. Please try again.",
             variant: "destructive",
           });
+        } else if (error.message.includes('Email not confirmed')) {
+          toast({
+            title: "Email Not Verified",
+            description: "Please check your email and click the verification link before logging in.",
+            variant: "destructive",
+          });
         } else {
           toast({
             title: "Login Failed",
@@ -107,7 +113,7 @@ const Auth = () => {
         email: values.email,
         password: values.password,
         options: {
-          emailRedirectTo: `${window.location.origin}/`,
+          emailRedirectTo: `${window.location.origin}/verify`,
           data: {
             username: values.username,
           }
@@ -135,7 +141,7 @@ const Auth = () => {
       if (data.user) {
         toast({
           title: "Account Created Successfully",
-          description: "Please check your email to verify your account.",
+          description: "Please check your email to verify your account before logging in.",
         });
         // Don't navigate immediately, let them verify email first
       }

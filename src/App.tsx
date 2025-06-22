@@ -10,6 +10,7 @@ import ProductDetail from "./pages/ProductDetail";
 import NotFound from "./pages/NotFound";
 import CategoryPage from "./pages/CategoryPage";
 import Auth from "./pages/Auth";
+import EmailVerification from "./components/EmailVerification";
 import LocationEnabler from "./components/LocationEnabler";
 import Admin from "./pages/Admin";
 import AdminAuth from "./pages/AdminAuth";
@@ -57,6 +58,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/login" element={<Auth />} />
             <Route path="/signup" element={<Auth />} />
+            <Route path="/verify" element={<EmailVerification />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/admin/auth" element={<AdminAuth />} />
             <Route path="/customer-care" element={<CustomerCare />} />
