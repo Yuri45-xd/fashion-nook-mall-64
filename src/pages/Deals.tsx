@@ -5,7 +5,7 @@ import Footer from "../components/Footer";
 import CategoryNav from "../components/CategoryNav";
 import ProductCard from "../components/ProductCard";
 import { useSupabaseProductStore } from "../store/SupabaseProductStore";
-import { Clock, Fire } from "lucide-react";
+import { Clock, Flame } from "lucide-react";
 
 const Deals = () => {
   const { products, fetchProducts } = useSupabaseProductStore();
@@ -70,7 +70,7 @@ const Deals = () => {
         <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white p-6 rounded-lg mb-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Fire className="w-8 h-8" />
+              <Flame className="w-8 h-8" />
               <div>
                 <h1 className="text-3xl font-bold">Deals of the Day</h1>
                 <p className="text-red-100">Limited time offers - Don't miss out!</p>
@@ -98,7 +98,7 @@ const Deals = () => {
           </div>
         ) : (
           <div className="text-center py-16">
-            <Fire className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+            <Flame className="w-16 h-16 mx-auto text-gray-400 mb-4" />
             <h2 className="text-2xl font-bold text-gray-600 mb-2">No Deals Available</h2>
             <p className="text-gray-500">Check back later for amazing deals!</p>
           </div>
