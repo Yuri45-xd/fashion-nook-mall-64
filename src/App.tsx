@@ -9,7 +9,7 @@ import Index from "./pages/Index";
 import ProductDetail from "./pages/ProductDetail";
 import NotFound from "./pages/NotFound";
 import CategoryPage from "./pages/CategoryPage";
-import Login from "./pages/Login";
+import Auth from "./pages/Auth";
 import LocationEnabler from "./components/LocationEnabler";
 import Admin from "./pages/Admin";
 import AdminAuth from "./pages/AdminAuth";
@@ -54,8 +54,9 @@ const App = () => (
             <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/categories/:categoryName" element={<CategoryPage />} />
             <Route path="/deals" element={<Deals />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Login />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/login" element={<Auth />} />
+            <Route path="/signup" element={<Auth />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/admin/auth" element={<AdminAuth />} />
             <Route path="/customer-care" element={<CustomerCare />} />

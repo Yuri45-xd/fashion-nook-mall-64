@@ -1,7 +1,8 @@
 
 import React, { useState, useRef, useEffect } from "react";
-import { Search, ShoppingCart, ChevronDown, User, Heart, Bell, Shield, MessageSquare, Store } from "lucide-react";
+import { Search, ShoppingCart, ChevronDown, User, Heart, Bell, Shield, MessageSquare, Store, LogOut } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 const Header = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -9,6 +10,7 @@ const Header = () => {
   const cartCount = 0;
   const navigate = useNavigate();
   const dropdownTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const { user, profile, signOut } = useAuth();
 
   const handleDropdownEnter = (dropdown: 'user' | 'more') => {
     if (dropdownTimerRef.current) {
@@ -32,12 +34,17 @@ const Header = () => {
 
   const handleCartClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    if (!isLoggedIn) {
-      navigate('/login');
+    if (!user) {
+      navigate('/auth');
       return;
     }
     navigate('/cart');
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    setActiveDropdown(null);
+    navigate('/');
   };
 
   return (
@@ -73,7 +80,9 @@ const Header = () => {
           >
             <div className="flex items-center gap-1">
               <User className="w-5 h-5" />
-              <span className="hidden md:inline">Login</span>
+              <span className="hidden md:inline">
+                {user ? (profile?.username || 'Profile') : 'Login'}
+              </span>
               <ChevronDown className="w-4 h-4" />
             </div>
             {activeDropdown === 'user' && (
@@ -84,32 +93,54 @@ const Header = () => {
                 }}
                 onMouseLeave={handleDropdownLeave}
               >
-                <div className="p-3 border-b border-gray-100">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">New Customer?</span>
-                    <Link to="/signup" className="text-flipkart-blue text-sm font-medium">Sign Up</Link>
-                  </div>
-                </div>
-                <ul className="py-1">
-                  <li>
-                    <Link to="/login" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-50 transition-colors duration-150">
-                      <User className="w-4 h-4" /> 
-                      <span className="text-sm">My Profile</span>
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/orders" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-50 transition-colors duration-150">
-                      <ShoppingCart className="w-4 h-4" /> 
-                      <span className="text-sm">Orders</span>
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/wishlist" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-50 transition-colors duration-150">
-                      <Heart className="w-4 h-4" /> 
-                      <span className="text-sm">Wishlist</span>
-                    </Link>
-                  </li>
-                </ul>
+                {!user ? (
+                  <>
+                    <div className="p-3 border-b border-gray-100">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium">New Customer?</span>
+                        <Link to="/auth?mode=signup" className="text-flipkart-blue text-sm font-medium">Sign Up</Link>
+                      </div>
+                    </div>
+                    <ul className="py-1">
+                      <li>
+                        <Link to="/auth" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-50 transition-colors duration-150">
+                          <User className="w-4 h-4" /> 
+                          <span className="text-sm">Sign In</span>
+                        </Link>
+                      </li>
+                    </ul>
+                  </>
+                ) : (
+                  <ul className="py-1">
+                    <li>
+                      <div className="px-4 py-2 border-b border-gray-100">
+                        <div className="text-sm font-medium">{profile?.username}</div>
+                        <div className="text-xs text-gray-500">{user.email}</div>
+                      </div>
+                    </li>
+                    <li>
+                      <Link to="/orders" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-50 transition-colors duration-150">
+                        <ShoppingCart className="w-4 h-4" /> 
+                        <span className="text-sm">Orders</span>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="/wishlist" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-50 transition-colors duration-150">
+                        <Heart className="w-4 h-4" /> 
+                        <span className="text-sm">Wishlist</span>
+                      </Link>
+                    </li>
+                    <li>
+                      <button 
+                        onClick={handleSignOut}
+                        className="flex items-center gap-2 px-4 py-2 hover:bg-gray-50 transition-colors duration-150 w-full text-left"
+                      >
+                        <LogOut className="w-4 h-4" /> 
+                        <span className="text-sm">Sign Out</span>
+                      </button>
+                    </li>
+                  </ul>
+                )}
               </div>
             )}
           </div>
