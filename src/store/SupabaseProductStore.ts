@@ -87,6 +87,21 @@ export const useSupabaseProductStore = create<SupabaseProductState>((set, get) =
       console.log('Updating product with ID:', product.id);
       console.log('Product data:', product);
 
+      // First, check if the product exists
+      const { data: existingProduct, error: fetchError } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', product.id)
+        .single();
+
+      if (fetchError) {
+        console.error('Error fetching existing product:', fetchError);
+        toast.error(`Product with ID ${product.id} not found`);
+        return;
+      }
+
+      console.log('Existing product:', existingProduct);
+
       const updateData = {
         title: product.title,
         price: Number(product.price),
@@ -107,8 +122,7 @@ export const useSupabaseProductStore = create<SupabaseProductState>((set, get) =
         .from('products')
         .update(updateData)
         .eq('id', product.id)
-        .select()
-        .single();
+        .select();
 
       if (error) {
         console.error('Error updating product:', error);
@@ -116,11 +130,17 @@ export const useSupabaseProductStore = create<SupabaseProductState>((set, get) =
         return;
       }
 
-      console.log('Update successful:', data);
+      if (!data || data.length === 0) {
+        console.error('No data returned from update operation');
+        toast.error('Product update failed - no data returned');
+        return;
+      }
+
+      console.log('Update successful:', data[0]);
 
       // Update the local state
       set((state) => ({
-        products: state.products.map(p => p.id === product.id ? data : p)
+        products: state.products.map(p => p.id === product.id ? data[0] : p)
       }));
 
       toast.success('Product updated successfully!');
