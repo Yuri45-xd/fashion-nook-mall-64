@@ -84,42 +84,48 @@ export const useSupabaseProductStore = create<SupabaseProductState>((set, get) =
 
   updateProduct: async (product) => {
     try {
+      console.log('Updating product with ID:', product.id);
+      console.log('Product data:', product);
+
+      const updateData = {
+        title: product.title,
+        price: Number(product.price),
+        original_price: product.original_price ? Number(product.original_price) : null,
+        discount_percentage: Number(product.discount_percentage),
+        image: product.image,
+        rating: Number(product.rating),
+        rating_count: Number(product.rating_count),
+        category: product.category,
+        description: product.description,
+        stock: Number(product.stock),
+        sku: product.sku
+      };
+
+      console.log('Update data:', updateData);
+
       const { data, error } = await supabase
         .from('products')
-        .update({
-          title: product.title,
-          price: product.price,
-          original_price: product.original_price,
-          discount_percentage: product.discount_percentage,
-          image: product.image,
-          rating: product.rating,
-          rating_count: product.rating_count,
-          category: product.category,
-          description: product.description,
-          stock: product.stock,
-          sku: product.sku
-        })
+        .update(updateData)
         .eq('id', product.id)
-        .select();
+        .select()
+        .single();
 
       if (error) {
         console.error('Error updating product:', error);
-        toast.error('Failed to update product');
+        toast.error(`Failed to update product: ${error.message}`);
         return;
       }
 
-      if (!data || data.length === 0) {
-        toast.error('Product not found or no changes made');
-        return;
-      }
+      console.log('Update successful:', data);
 
+      // Update the local state
       set((state) => ({
-        products: state.products.map(p => p.id === product.id ? data[0] : p)
+        products: state.products.map(p => p.id === product.id ? data : p)
       }));
 
       toast.success('Product updated successfully!');
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Catch error updating product:', error);
       toast.error('An error occurred while updating the product');
     }
   },
