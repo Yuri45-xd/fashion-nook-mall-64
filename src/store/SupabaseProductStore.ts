@@ -73,8 +73,13 @@ export const useSupabaseProductStore = create<SupabaseProductState>((set, get) =
         return;
       }
 
-      // Refresh the entire list instead of just adding to state
-      await get().fetchProducts();
+      console.log('Product added successfully:', data);
+      
+      // Add the new product to the state immediately
+      set(state => ({
+        products: [data, ...state.products]
+      }));
+      
       toast.success('Product added successfully!');
     } catch (error) {
       console.error('Error:', error);
@@ -85,7 +90,6 @@ export const useSupabaseProductStore = create<SupabaseProductState>((set, get) =
   updateProduct: async (product) => {
     try {
       console.log('Updating product with ID:', product.id);
-      console.log('Product data:', product);
 
       const updateData = {
         title: product.title,
@@ -103,41 +107,29 @@ export const useSupabaseProductStore = create<SupabaseProductState>((set, get) =
 
       console.log('Update data:', updateData);
 
-      // First, check if the product exists
-      const { data: existingProduct, error: checkError } = await supabase
-        .from('products')
-        .select('id')
-        .eq('id', product.id)
-        .maybeSingle();
-
-      if (checkError) {
-        console.error('Error checking product existence:', checkError);
-        toast.error(`Failed to verify product: ${checkError.message}`);
-        return;
-      }
-
-      if (!existingProduct) {
-        console.error('Product not found with ID:', product.id);
-        toast.error('Product not found');
-        return;
-      }
-
-      // Perform the update
-      const { error: updateError } = await supabase
+      // Perform the update and get the updated product
+      const { data, error } = await supabase
         .from('products')
         .update(updateData)
-        .eq('id', product.id);
+        .eq('id', product.id)
+        .select()
+        .single();
 
-      if (updateError) {
-        console.error('Error updating product:', updateError);
-        toast.error(`Failed to update product: ${updateError.message}`);
+      if (error) {
+        console.error('Error updating product:', error);
+        toast.error(`Failed to update product: ${error.message}`);
         return;
       }
 
-      console.log('Product updated successfully, refreshing list...');
-      
-      // Refresh the entire list instead of trying to update individual items
-      await get().fetchProducts();
+      console.log('Update successful:', data);
+
+      // Update the product in the state immediately
+      set(state => ({
+        products: state.products.map(p => 
+          p.id === product.id ? data : p
+        )
+      }));
+
       toast.success('Product updated successfully!');
     } catch (error) {
       console.error('Catch error updating product:', error);
@@ -148,6 +140,7 @@ export const useSupabaseProductStore = create<SupabaseProductState>((set, get) =
   deleteProduct: async (id) => {
     try {
       console.log('Deleting product with ID:', id);
+      
       const { error } = await supabase
         .from('products')
         .delete()
@@ -159,10 +152,13 @@ export const useSupabaseProductStore = create<SupabaseProductState>((set, get) =
         return;
       }
 
-      console.log('Product deleted successfully, refreshing list...');
+      console.log('Product deleted successfully');
       
-      // Refresh the entire list instead of just removing from state
-      await get().fetchProducts();
+      // Remove the product from state immediately
+      set(state => ({
+        products: state.products.filter(p => p.id !== id)
+      }));
+
       toast.success('Product deleted successfully!');
     } catch (error) {
       console.error('Error:', error);

@@ -21,7 +21,7 @@ const DatabaseProductManagement = () => {
     console.log('Initial products fetch');
     fetchProducts();
     
-    // Set up real-time updates with better error handling
+    // Set up real-time updates
     const channel = supabase
       .channel('products-changes')
       .on(
@@ -33,7 +33,7 @@ const DatabaseProductManagement = () => {
         },
         (payload) => {
           console.log('Real-time update received:', payload);
-          // Force refresh the products list on any change
+          // Refresh products on any database change
           fetchProducts();
         }
       )
@@ -61,21 +61,13 @@ const DatabaseProductManagement = () => {
     if (confirm(`Are you sure you want to delete "${product.title}"?`)) {
       console.log('Deleting product:', product.id);
       await deleteProduct(product.id);
-      // Force refresh after delete
-      setTimeout(() => {
-        fetchProducts();
-      }, 100);
     }
   };
 
   const handleSave = () => {
-    console.log('Product saved, refreshing list');
+    console.log('Product saved, closing editor');
     setShowEditor(false);
     setEditingProduct(null);
-    // Force refresh after save
-    setTimeout(() => {
-      fetchProducts();
-    }, 100);
   };
 
   const handleCancel = () => {
@@ -161,7 +153,7 @@ const DatabaseProductManagement = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredProducts.map((product) => (
-            <Card key={`${product.id}-${product.updated_at}`} className="relative group hover:shadow-lg transition-shadow">
+            <Card key={`product-${product.id}-${product.updated_at}`} className="relative group hover:shadow-lg transition-shadow">
               <CardContent className="p-4">
                 <div className="aspect-square mb-3 overflow-hidden rounded-md bg-gray-100">
                   <img
