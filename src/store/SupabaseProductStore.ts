@@ -28,6 +28,7 @@ interface SupabaseProductState {
   updateProduct: (product: DatabaseProduct) => Promise<void>;
   deleteProduct: (id: number) => Promise<void>;
   getProductsByCategory: (category: string) => DatabaseProduct[];
+  refreshProducts: () => Promise<void>;
 }
 
 export const useSupabaseProductStore = create<SupabaseProductState>((set, get) => ({
@@ -59,8 +60,30 @@ export const useSupabaseProductStore = create<SupabaseProductState>((set, get) =
     }
   },
 
+  refreshProducts: async () => {
+    // Force refresh without loading state
+    try {
+      console.log('Force refreshing products...');
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error refreshing products:', error);
+        return;
+      }
+
+      console.log('Products refreshed successfully:', data?.length);
+      set({ products: data || [] });
+    } catch (error) {
+      console.error('Error refreshing products:', error);
+    }
+  },
+
   addProduct: async (product) => {
     try {
+      console.log('Adding product:', product);
       const { data, error } = await supabase
         .from('products')
         .insert([product])
@@ -75,11 +98,8 @@ export const useSupabaseProductStore = create<SupabaseProductState>((set, get) =
 
       console.log('Product added successfully:', data);
       
-      // Add the new product to the state immediately
-      set(state => ({
-        products: [data, ...state.products]
-      }));
-      
+      // Force refresh to get latest state
+      await get().refreshProducts();
       toast.success('Product added successfully!');
     } catch (error) {
       console.error('Error:', error);
@@ -107,13 +127,10 @@ export const useSupabaseProductStore = create<SupabaseProductState>((set, get) =
 
       console.log('Update data:', updateData);
 
-      // Perform the update and get the updated product
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('products')
         .update(updateData)
-        .eq('id', product.id)
-        .select()
-        .single();
+        .eq('id', product.id);
 
       if (error) {
         console.error('Error updating product:', error);
@@ -121,15 +138,10 @@ export const useSupabaseProductStore = create<SupabaseProductState>((set, get) =
         return;
       }
 
-      console.log('Update successful:', data);
-
-      // Update the product in the state immediately
-      set(state => ({
-        products: state.products.map(p => 
-          p.id === product.id ? data : p
-        )
-      }));
-
+      console.log('Product updated successfully');
+      
+      // Force refresh to get latest state
+      await get().refreshProducts();
       toast.success('Product updated successfully!');
     } catch (error) {
       console.error('Catch error updating product:', error);
@@ -154,11 +166,8 @@ export const useSupabaseProductStore = create<SupabaseProductState>((set, get) =
 
       console.log('Product deleted successfully');
       
-      // Remove the product from state immediately
-      set(state => ({
-        products: state.products.filter(p => p.id !== id)
-      }));
-
+      // Force refresh to get latest state
+      await get().refreshProducts();
       toast.success('Product deleted successfully!');
     } catch (error) {
       console.error('Error:', error);

@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { Plus, Edit3, Trash2, Loader2, Search, Filter } from "lucide-react";
 
 const DatabaseProductManagement = () => {
-  const { products, loading, fetchProducts, deleteProduct } = useSupabaseProductStore();
+  const { products, loading, fetchProducts, deleteProduct, refreshProducts } = useSupabaseProductStore();
   const [editingProduct, setEditingProduct] = useState<DatabaseProduct | null>(null);
   const [showEditor, setShowEditor] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -21,9 +21,9 @@ const DatabaseProductManagement = () => {
     console.log('Initial products fetch');
     fetchProducts();
     
-    // Set up real-time updates
+    // Set up real-time updates with more comprehensive listening
     const channel = supabase
-      .channel('products-changes')
+      .channel('products-realtime')
       .on(
         'postgres_changes',
         {
@@ -33,19 +33,19 @@ const DatabaseProductManagement = () => {
         },
         (payload) => {
           console.log('Real-time update received:', payload);
-          // Refresh products on any database change
-          fetchProducts();
+          // Always refresh on any change
+          refreshProducts();
         }
       )
       .subscribe((status) => {
-        console.log('Subscription status:', status);
+        console.log('Real-time subscription status:', status);
       });
 
     return () => {
       console.log('Cleaning up real-time subscription');
       supabase.removeChannel(channel);
     };
-  }, [fetchProducts]);
+  }, [fetchProducts, refreshProducts]);
 
   const handleEdit = (product: DatabaseProduct) => {
     setEditingProduct(product);
@@ -64,10 +64,12 @@ const DatabaseProductManagement = () => {
     }
   };
 
-  const handleSave = () => {
-    console.log('Product saved, closing editor');
+  const handleSave = async () => {
+    console.log('Product saved, refreshing and closing editor');
     setShowEditor(false);
     setEditingProduct(null);
+    // Force refresh after save
+    await refreshProducts();
   };
 
   const handleCancel = () => {
@@ -105,10 +107,15 @@ const DatabaseProductManagement = () => {
               <Plus className="w-5 h-5" />
               Product Management ({products.length} products)
             </div>
-            <Button onClick={handleAdd} size="sm">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Product
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={() => refreshProducts()} variant="outline" size="sm">
+                Refresh
+              </Button>
+              <Button onClick={handleAdd} size="sm">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Product
+              </Button>
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -153,7 +160,7 @@ const DatabaseProductManagement = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredProducts.map((product) => (
-            <Card key={`product-${product.id}-${product.updated_at}`} className="relative group hover:shadow-lg transition-shadow">
+            <Card key={`product-${product.id}-${product.updated_at}-${Date.now()}`} className="relative group hover:shadow-lg transition-shadow">
               <CardContent className="p-4">
                 <div className="aspect-square mb-3 overflow-hidden rounded-md bg-gray-100">
                   <img
