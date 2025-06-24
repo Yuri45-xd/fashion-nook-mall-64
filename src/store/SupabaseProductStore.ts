@@ -37,6 +37,7 @@ export const useSupabaseProductStore = create<SupabaseProductState>((set, get) =
   fetchProducts: async () => {
     set({ loading: true });
     try {
+      console.log('Fetching products from database...');
       const { data, error } = await supabase
         .from('products')
         .select('*')
@@ -48,6 +49,7 @@ export const useSupabaseProductStore = create<SupabaseProductState>((set, get) =
         return;
       }
 
+      console.log('Products fetched successfully:', data?.length);
       set({ products: data || [] });
     } catch (error) {
       console.error('Error:', error);
@@ -71,10 +73,8 @@ export const useSupabaseProductStore = create<SupabaseProductState>((set, get) =
         return;
       }
 
-      set((state) => ({
-        products: [data, ...state.products]
-      }));
-
+      // Refresh the entire list instead of just adding to state
+      await get().fetchProducts();
       toast.success('Product added successfully!');
     } catch (error) {
       console.error('Error:', error);
@@ -134,34 +134,10 @@ export const useSupabaseProductStore = create<SupabaseProductState>((set, get) =
         return;
       }
 
-      // Fetch the updated product to get the latest data including updated_at
-      const { data: updatedProduct, error: fetchError } = await supabase
-        .from('products')
-        .select('*')
-        .eq('id', product.id)
-        .single();
-
-      if (fetchError) {
-        console.error('Error fetching updated product:', fetchError);
-        toast.error('Update completed but failed to refresh data');
-        // Still update local state with what we have
-        set((state) => ({
-          products: state.products.map(p => 
-            p.id === product.id 
-              ? { ...product, updated_at: new Date().toISOString() }
-              : p
-          )
-        }));
-        return;
-      }
-
-      console.log('Update successful:', updatedProduct);
-
-      // Update the local state with the updated product
-      set((state) => ({
-        products: state.products.map(p => p.id === product.id ? updatedProduct : p)
-      }));
-
+      console.log('Product updated successfully, refreshing list...');
+      
+      // Refresh the entire list instead of trying to update individual items
+      await get().fetchProducts();
       toast.success('Product updated successfully!');
     } catch (error) {
       console.error('Catch error updating product:', error);
@@ -171,6 +147,7 @@ export const useSupabaseProductStore = create<SupabaseProductState>((set, get) =
 
   deleteProduct: async (id) => {
     try {
+      console.log('Deleting product with ID:', id);
       const { error } = await supabase
         .from('products')
         .delete()
@@ -182,10 +159,10 @@ export const useSupabaseProductStore = create<SupabaseProductState>((set, get) =
         return;
       }
 
-      set((state) => ({
-        products: state.products.filter(p => p.id !== id)
-      }));
-
+      console.log('Product deleted successfully, refreshing list...');
+      
+      // Refresh the entire list instead of just removing from state
+      await get().fetchProducts();
       toast.success('Product deleted successfully!');
     } catch (error) {
       console.error('Error:', error);
