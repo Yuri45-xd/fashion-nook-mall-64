@@ -1,4 +1,3 @@
-
 import { create } from "zustand";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -103,41 +102,31 @@ export const useSupabaseProductStore = create<SupabaseProductState>((set, get) =
 
       console.log('Update data:', updateData);
 
-      // Perform the update
-      const { error: updateError } = await supabase
+      // Perform the update and get the updated record back
+      const { data, error } = await supabase
         .from('products')
         .update(updateData)
-        .eq('id', product.id);
-
-      if (updateError) {
-        console.error('Error updating product:', updateError);
-        toast.error(`Failed to update product: ${updateError.message}`);
-        return;
-      }
-
-      // Fetch the updated product to get the latest data
-      const { data: updatedProduct, error: fetchError } = await supabase
-        .from('products')
-        .select('*')
         .eq('id', product.id)
+        .select()
         .single();
 
-      if (fetchError) {
-        console.error('Error fetching updated product:', fetchError);
-        // Update was successful but we couldn't fetch the updated data
-        // Still update the local state with the data we have
-        set((state) => ({
-          products: state.products.map(p => p.id === product.id ? { ...product, updated_at: new Date().toISOString() } : p)
-        }));
-        toast.success('Product updated successfully!');
+      if (error) {
+        console.error('Error updating product:', error);
+        toast.error(`Failed to update product: ${error.message}`);
         return;
       }
 
-      console.log('Update successful:', updatedProduct);
+      if (!data) {
+        console.error('No data returned from update operation');
+        toast.error('Product update failed - no data returned');
+        return;
+      }
 
-      // Update the local state with the fresh data from database
+      console.log('Update successful:', data);
+
+      // Update the local state with the updated product
       set((state) => ({
-        products: state.products.map(p => p.id === product.id ? updatedProduct : p)
+        products: state.products.map(p => p.id === product.id ? data : p)
       }));
 
       toast.success('Product updated successfully!');
