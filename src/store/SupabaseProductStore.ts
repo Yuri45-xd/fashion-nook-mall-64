@@ -1,3 +1,4 @@
+
 import { create } from "zustand";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -102,31 +103,63 @@ export const useSupabaseProductStore = create<SupabaseProductState>((set, get) =
 
       console.log('Update data:', updateData);
 
-      // Perform the update and get the updated record back
-      const { data, error } = await supabase
+      // First, check if the product exists
+      const { data: existingProduct, error: checkError } = await supabase
+        .from('products')
+        .select('id')
+        .eq('id', product.id)
+        .maybeSingle();
+
+      if (checkError) {
+        console.error('Error checking product existence:', checkError);
+        toast.error(`Failed to verify product: ${checkError.message}`);
+        return;
+      }
+
+      if (!existingProduct) {
+        console.error('Product not found with ID:', product.id);
+        toast.error('Product not found');
+        return;
+      }
+
+      // Perform the update
+      const { error: updateError } = await supabase
         .from('products')
         .update(updateData)
+        .eq('id', product.id);
+
+      if (updateError) {
+        console.error('Error updating product:', updateError);
+        toast.error(`Failed to update product: ${updateError.message}`);
+        return;
+      }
+
+      // Fetch the updated product to get the latest data including updated_at
+      const { data: updatedProduct, error: fetchError } = await supabase
+        .from('products')
+        .select('*')
         .eq('id', product.id)
-        .select()
         .single();
 
-      if (error) {
-        console.error('Error updating product:', error);
-        toast.error(`Failed to update product: ${error.message}`);
+      if (fetchError) {
+        console.error('Error fetching updated product:', fetchError);
+        toast.error('Update completed but failed to refresh data');
+        // Still update local state with what we have
+        set((state) => ({
+          products: state.products.map(p => 
+            p.id === product.id 
+              ? { ...product, updated_at: new Date().toISOString() }
+              : p
+          )
+        }));
         return;
       }
 
-      if (!data) {
-        console.error('No data returned from update operation');
-        toast.error('Product update failed - no data returned');
-        return;
-      }
-
-      console.log('Update successful:', data);
+      console.log('Update successful:', updatedProduct);
 
       // Update the local state with the updated product
       set((state) => ({
-        products: state.products.map(p => p.id === product.id ? data : p)
+        products: state.products.map(p => p.id === product.id ? updatedProduct : p)
       }));
 
       toast.success('Product updated successfully!');
